@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mantuni — El mantenimiento de tu negocio, ordenado</title>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
 <meta name="description" content="Reportar y cerrar órdenes de mantenimiento con un QR y una foto. Sin avisos perdidos en WhatsApp.">
 <style>
   :root{
@@ -304,12 +306,53 @@
   }
 
   if(!reduce){
-    window.addEventListener('scroll', updateAll, {passive:true});
-    window.addEventListener('resize', updateAll);
-    window.addEventListener('orientationchange', function(){ setTimeout(updateAll, 250); });
-    window.addEventListener('load', updateAll);
-    if(window.ResizeObserver){ scenes.forEach(function(s){ new ResizeObserver(updateAll).observe(s.el); }); }
-    (function loop(){ updateAll(); requestAnimationFrame(loop); })();
+    // redimensionar canvas al tamaño real
+    function sizeAll(){
+      scenes.forEach(function(s){
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        var w = Math.max(1, Math.round((s.canvas.offsetWidth || 320) * dpr));
+        var h = Math.max(1, Math.round((s.canvas.offsetHeight || 180) * dpr));
+        if(s.canvas.width !== w || s.canvas.height !== h){
+          s.canvas.width = w; s.canvas.height = h; s.current = -1;
+        }
+      });
+    }
+    sizeAll();
+    window.addEventListener('load', sizeAll);
+    window.addEventListener('resize', sizeAll);
+    window.addEventListener('orientationchange', function(){ setTimeout(sizeAll, 250); });
+
+    if(window.gsap && window.ScrollTrigger){
+      gsap.registerPlugin(ScrollTrigger);
+      scenes.forEach(function(s){
+        ScrollTrigger.create({
+          trigger: s.el,
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: true,
+          onUpdate: function(self){
+            var p = self.progress;
+            var f = Math.round(p * (TOTAL - 1));
+            if(f !== s.current){
+              s.current = f;
+              var img = s.imgs[f];
+              if(img && img.complete && img.naturalWidth > 0) drawCover(s, img);
+            }
+            s.texts.forEach(function(t){
+              var at = parseFloat(t.dataset.at || '0');
+              t.classList.toggle('show', Math.abs(p - at) < 0.22);
+            });
+          }
+        });
+        s.current = 0;
+        if(s.imgs[0] && s.imgs[0].complete) drawCover(s, s.imgs[0]);
+        else if(s.imgs[0]) s.imgs[0].onload = function(){ if(s.current === 0) drawCover(s, s.imgs[0]); };
+      });
+      ScrollTrigger.refresh();
+    } else {
+      window.addEventListener('scroll', updateAll, {passive:true});
+      (function loop(){ updateAll(); requestAnimationFrame(loop); })();
+    }
   }
 })();
 </script>
