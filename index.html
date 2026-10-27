@@ -244,7 +244,8 @@
     if(!canvas) return;
     var folder = scene.dataset.frames;
     var texts = scene.querySelectorAll('.texts .t');
-    var s = { el: scene, canvas: canvas, ctx: canvas.getContext('2d'), folder: folder, imgs: [], texts: texts, current: -1 };
+    var sticky = scene.querySelector('.sticky');
+    var s = { el: scene, sticky: sticky, canvas: canvas, ctx: canvas.getContext('2d'), folder: folder, imgs: [], texts: texts, current: -1 };
     (function(sc){
       for(var i=0; i<TOTAL; i++){
         (function(idx){
@@ -282,6 +283,7 @@
       s.current = frame;
       var img = s.imgs[frame];
       if(img && img.complete && img.naturalWidth > 0) drawCover(s, img);
+      if(s.sticky) s.sticky.style.backgroundImage = "url('" + s.folder + "/f" + String(frame).padStart(3,'0') + ".jpg')";
     }
     s.texts.forEach(function(t){
       var at = parseFloat(t.dataset.at || '0');
@@ -306,10 +308,8 @@
     window.addEventListener('resize', updateAll);
     window.addEventListener('orientationchange', function(){ setTimeout(updateAll, 250); });
     window.addEventListener('load', updateAll);
-    setTimeout(updateAll, 300);
-    setTimeout(updateAll, 1200);
     if(window.ResizeObserver){ scenes.forEach(function(s){ new ResizeObserver(updateAll).observe(s.el); }); }
-    updateAll();
+    (function loop(){ updateAll(); requestAnimationFrame(loop); })();
   }
 })();
 </script>
