@@ -258,7 +258,7 @@
     var frame = Math.round(p * (TOTAL - 1));
     if(frame !== s.current){
       s.current = frame;
-      s.imgEl.src = s.imgEl.src.charAt(0) === '/' ? s.imgEl.src : s.folder + '/f' + String(frame).padStart(3,'0') + '.jpg';
+      s.imgEl.src = s.folder + '/f' + String(frame).padStart(3,'0') + '.jpg';
     }
     s.texts.forEach(function(t){
       var at = parseFloat(t.dataset.at || '0');
@@ -267,17 +267,10 @@
   }
 
   if(!reduce){
-    var ticking = false;
-    window.addEventListener('scroll', function(){
-      if(ticking) return;
-      ticking = true;
-      requestAnimationFrame(function(){
-        scenes.forEach(updateScene);
-        ticking = false;
-      });
-    }, {passive:true});
+    window.addEventListener('scroll', function(){ scenes.forEach(updateScene); }, {passive:true});
     window.addEventListener('resize', function(){ scenes.forEach(updateScene); });
     window.addEventListener('load', function(){ scenes.forEach(updateScene); });
+    setTimeout(function(){ scenes.forEach(updateScene); }, 300);
     scenes.forEach(updateScene);
   }
 })();
