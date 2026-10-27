@@ -42,7 +42,7 @@
   .scroll-scene.tecnico{height:380vh}
   .scroll-scene.panel{height:220vh}
   .scroll-scene .sticky{position:sticky;top:0;height:100vh;overflow:hidden}
-  .scroll-scene canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .scroll-scene canvas,.scroll-scene .scene-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .scroll-scene .overlay{position:absolute;inset:0}
   .scroll-scene.hero .overlay{background:linear-gradient(to bottom,rgba(7,7,11,.35) 0%,rgba(7,7,11,.55) 50%,rgba(7,7,11,.92) 100%)}
   .scroll-scene.tecnico .overlay{background:linear-gradient(to bottom,rgba(7,7,11,.55) 0%,rgba(7,7,11,.25) 40%,rgba(7,7,11,.75) 100%)}
@@ -119,7 +119,7 @@
   <!-- HERO SCROLL-DRIVEN -->
   <section class="scroll-scene hero" data-frames="frames_hero">
     <div class="sticky">
-      <canvas width="960" height="540"></canvas>
+      <img class="scene-img" alt="" src="frames_hero/f000.jpg">
       <div class="overlay"></div>
       <div class="scene-content">
         <span class="eyebrow reveal">Mantenimiento sin caos</span>
@@ -137,7 +137,7 @@
   <!-- TÉCNICO SCROLL-DRIVEN -->
   <section class="scroll-scene tecnico" data-frames="frames">
     <div class="sticky">
-      <canvas width="960" height="540"></canvas>
+      <img class="scene-img" alt="" src="frames/f000.jpg">
       <div class="overlay"></div>
       <div class="texts">
         <div class="t" data-at="0.05">
@@ -175,7 +175,7 @@
   <!-- PANEL SCROLL-DRIVEN -->
   <section class="scroll-scene panel" data-frames="frames_panel">
     <div class="sticky">
-      <canvas width="960" height="540"></canvas>
+      <img class="scene-img" alt="" src="frames_panel/f000.jpg">
       <div class="overlay"></div>
       <div class="scene-content">
         <span class="eyebrow reveal">El jefe</span>
@@ -234,49 +234,39 @@
   }, {threshold:.2});
   document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
 
-  /* 3. SCROLL-DRIVEN por FRAMES en canvas para las 3 escenas */
+  /* 3. SCROLL-DRIVEN por FRAMES en <img> (compatible movil) */
+  var TOTAL = 120;
+  var scenes = [];
+  document.querySelectorAll('.scroll-scene').forEach(function(scene){
+    var imgEl = scene.querySelector('.scene-img');
+    if(!imgEl) return;
+    var folder = scene.dataset.frames;
+    var texts = scene.querySelectorAll('.texts .t');
+    var imgs = [];
+    for(var i=0; i<TOTAL; i++){
+      var img = new Image();
+      img.src = folder + '/f' + String(i).padStart(3,'0') + '.jpg';
+      imgs.push(img);
+    }
+    scenes.push({ el: scene, imgEl: imgEl, folder: folder, imgs: imgs, texts: texts, current: -1 });
+  });
+
+  function updateScene(s){
+    var rect = s.el.getBoundingClientRect();
+    var total = s.el.offsetHeight - window.innerHeight;
+    var p = Math.max(0, Math.min(1, -rect.top / total));
+    var frame = Math.round(p * (TOTAL - 1));
+    if(frame !== s.current){
+      s.current = frame;
+      s.imgEl.src = s.imgEl.src.charAt(0) === '/' ? s.imgEl.src : s.folder + '/f' + String(frame).padStart(3,'0') + '.jpg';
+    }
+    s.texts.forEach(function(t){
+      var at = parseFloat(t.dataset.at || '0');
+      t.classList.toggle('show', Math.abs(p - at) < 0.22);
+    });
+  }
+
   if(!reduce){
-    var TOTAL = 120;
-    var scenes = [];
-    document.querySelectorAll('.scroll-scene').forEach(function(scene){
-      var canvas = scene.querySelector('canvas');
-      if(!canvas) return;
-      var ctx = canvas.getContext('2d');
-      var folder = scene.dataset.frames;
-      var texts = scene.querySelectorAll('.texts .t');
-      var imgs = [];
-      for(var i=0; i<TOTAL; i++){
-        var img = new Image();
-        img.src = folder + '/f' + String(i).padStart(3,'0') + '.jpg';
-        imgs.push(img);
-      }
-      scenes.push({ el: scene, ctx: ctx, canvas: canvas, imgs: imgs, texts: texts, current: -1 });
-    });
-
-    // dibujar el primer frame cuando carga
-    scenes.forEach(function(s){
-      s.imgs[0].onload = function(){ s.ctx.drawImage(s.imgs[0], 0, 0, s.canvas.width, s.canvas.height); };
-    });
-
-    function drawFrame(s, idx){
-      var img = s.imgs[idx];
-      if(img && img.complete && img.naturalWidth > 0){
-        s.ctx.drawImage(img, 0, 0, s.canvas.width, s.canvas.height);
-      }
-    }
-
-    function updateScene(s){
-      var rect = s.el.getBoundingClientRect();
-      var total = s.el.offsetHeight - window.innerHeight;
-      var p = Math.max(0, Math.min(1, -rect.top / total));
-      var frame = Math.round(p * (TOTAL - 1));
-      if(frame !== s.current){ s.current = frame; drawFrame(s, frame); }
-      s.texts.forEach(function(t){
-        var at = parseFloat(t.dataset.at || '0');
-        t.classList.toggle('show', Math.abs(p - at) < 0.22);
-      });
-    }
-
     var ticking = false;
     window.addEventListener('scroll', function(){
       if(ticking) return;
@@ -286,7 +276,6 @@
         ticking = false;
       });
     }, {passive:true});
-
     window.addEventListener('resize', function(){ scenes.forEach(updateScene); });
     window.addEventListener('load', function(){ scenes.forEach(updateScene); });
     scenes.forEach(updateScene);
