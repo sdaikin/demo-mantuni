@@ -22,62 +22,84 @@
     -webkit-font-smoothing:antialiased;letter-spacing:-.01em;
     overflow-x:hidden;
   }
-  h1,h2{line-height:1.05;letter-spacing:-.035em;font-weight:600}
+  h1,h2,h3{line-height:1.04;letter-spacing:-.035em;font-weight:600}
   a{color:inherit;text-decoration:none}
+  video{display:block}
 
   /* nav */
-  .nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:18px 5vw;background:linear-gradient(to bottom,rgba(7,7,11,.8),transparent)}
+  .nav{position:fixed;top:0;left:0;right:0;z-index:60;display:flex;align-items:center;justify-content:space-between;padding:18px 5vw;background:linear-gradient(to bottom,rgba(7,7,11,.85),transparent);pointer-events:none}
+  .nav>*{pointer-events:auto}
   .nav .brand{font-weight:600;font-size:20px;letter-spacing:-.02em}
   .nav .brand span{color:var(--verde-brillo)}
   .nav .cta{font-size:14px;font-weight:500;padding:9px 18px;border-radius:980px;background:var(--verde-brillo);color:#04120d;transition:transform .2s,box-shadow .2s}
   .nav .cta:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(45,212,168,.3)}
 
-  /* escenas */
-  .scene{position:relative;height:100vh;overflow:hidden}
-  .scene video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.06)}
-  .scene .overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(7,7,11,.25) 0%,rgba(7,7,11,.55) 55%,rgba(7,7,11,.92) 100%)}
-  .scene .content{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;justify-content:center;padding:0 8vw;max-width:1000px}
-  .scene .content.center{align-items:center;text-align:center;margin:0 auto;padding:0 6vw}
-
+  /* ===== HERO (video en loop, estático) ===== */
+  .hero{position:relative;height:100vh;overflow:hidden}
+  .hero video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .hero .overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(7,7,11,.3) 0%,rgba(7,7,11,.55) 50%,rgba(7,7,11,.92) 100%)}
+  .hero .content{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;justify-content:center;padding:0 8vw;max-width:1050px}
   .eyebrow{font-size:14px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--verde-brillo);margin-bottom:20px}
-  .scene h1{font-size:clamp(2.8rem,7vw,6rem);max-width:14ch}
-  .scene h2{font-size:clamp(2.2rem,5.5vw,4.2rem);max-width:16ch}
-  .scene p{font-size:clamp(1.1rem,2.2vw,1.5rem);color:var(--muted);max-width:46ch;margin-top:24px;line-height:1.5}
-  .scene .content.center p{margin-left:auto;margin-right:auto}
-
+  .hero h1{font-size:clamp(2.8rem,7vw,6rem);max-width:14ch;text-shadow:0 4px 30px rgba(0,0,0,.5)}
+  .hero p{font-size:clamp(1.1rem,2.2vw,1.5rem);color:#d8d8de;max-width:46ch;margin-top:24px;line-height:1.5;text-shadow:0 2px 16px rgba(0,0,0,.6)}
   .btn{display:inline-flex;align-items:center;gap:10px;margin-top:36px;padding:15px 30px;border-radius:980px;background:var(--verde-brillo);color:#04120d;font-weight:600;font-size:16px;transition:transform .2s,box-shadow .2s;width:fit-content}
   .btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(45,212,168,.35)}
-  .content.center .btn{margin-left:auto;margin-right:auto}
 
-  /* reveal al scroll */
-  .reveal{opacity:0;transform:translateY(32px);transition:opacity 1s cubic-bezier(.16,1,.3,1),transform 1s cubic-bezier(.16,1,.3,1)}
+  /* palabra por palabra */
+  .word{display:inline-block;opacity:0;transform:translateY(60%);animation:wordIn .9s cubic-bezier(.16,1,.3,1) forwards}
+  @keyframes wordIn{to{opacity:1;transform:translateY(0)}}
+
+  .scroll-cue{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);z-index:3;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--muted);font-size:11px;letter-spacing:.1em;text-transform:uppercase;animation:bob 2.4s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,8px)}}
+  .scroll-cue .line{width:1px;height:36px;background:linear-gradient(to bottom,var(--verde-brillo),transparent)}
+
+  /* ===== SECCIONES INTERMEDIAS (transición suave) ===== */
+  .bridge{height:60vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 50%,rgba(26,107,84,.18),transparent 65%)}
+  .bridge p{max-width:20ch;text-align:center;font-size:clamp(1.6rem,3.4vw,2.6rem);font-weight:600;letter-spacing:-.03em;color:var(--text);opacity:.9}
+
+  /* ===== ESCENA SCROLL-DRIVEN (el técnico) ===== */
+  .scroll-scene{position:relative;height:380vh}
+  .scroll-scene .sticky{position:sticky;top:0;height:100vh;overflow:hidden}
+  .scroll-scene video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .scroll-scene .overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(7,7,11,.55) 0%,rgba(7,7,11,.25) 40%,rgba(7,7,11,.75) 100%)}
+  .scroll-scene .texts{position:absolute;inset:0;z-index:2}
+  .scroll-scene .texts .t{position:absolute;left:8vw;right:8vw;max-width:720px;opacity:0;transform:translateY(28px);transition:opacity .5s cubic-bezier(.16,1,.3,1),transform .5s cubic-bezier(.16,1,.3,1);pointer-events:none}
+  .scroll-scene .texts .t.show{opacity:1;transform:none}
+  .scroll-scene .texts .t .k{display:block;font-size:13px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--verde-brillo);margin-bottom:14px}
+  .scroll-scene .texts .t h2{font-size:clamp(2rem,4.6vw,3.6rem);max-width:15ch;text-shadow:0 4px 30px rgba(0,0,0,.6)}
+  .scroll-scene .texts .t p{font-size:clamp(1rem,1.7vw,1.25rem);color:#d8d8de;margin-top:16px;max-width:42ch;text-shadow:0 2px 14px rgba(0,0,0,.7)}
+  .scroll-scene .texts .t:nth-child(1){top:24%}
+  .scroll-scene .texts .t:nth-child(2){top:34%}
+  .scroll-scene .texts .t:nth-child(3){top:44%}
+
+  /* ===== PANEL (video en loop + texto lateral) ===== */
+  .panel-scene{position:relative;height:100vh;overflow:hidden}
+  .panel-scene video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .panel-scene .overlay{position:absolute;inset:0;background:linear-gradient(to right,rgba(7,7,11,.9) 0%,rgba(7,7,11,.45) 55%,rgba(7,7,11,.2) 100%)}
+  .panel-scene .content{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;justify-content:center;padding:0 8vw;max-width:820px}
+  .panel-scene h2{font-size:clamp(2.2rem,5.5vw,4.2rem);max-width:15ch;text-shadow:0 4px 30px rgba(0,0,0,.6)}
+  .panel-scene p{font-size:clamp(1.05rem,2vw,1.35rem);color:#d8d8de;max-width:42ch;margin-top:22px;text-shadow:0 2px 14px rgba(0,0,0,.7)}
+
+  .reveal{opacity:0;transform:translateY(30px);transition:opacity 1s cubic-bezier(.16,1,.3,1),transform 1s cubic-bezier(.16,1,.3,1)}
   .reveal.in{opacity:1;transform:none}
 
-  /* separador suave */
-  .fade-edge{position:absolute;left:0;right:0;bottom:0;height:140px;background:linear-gradient(to bottom,transparent,var(--bg));z-index:3;pointer-events:none}
-
-  /* marquee */
-  .marquee{overflow:hidden;padding:22px 0;border-top:1px solid rgba(255,255,255,.07);border-bottom:1px solid rgba(255,255,255,.07);background:var(--bg)}
-  .marquee-track{display:flex;gap:46px;width:max-content;animation:scrollX 30s linear infinite}
-  @keyframes scrollX{to{transform:translateX(-50%)}}
-  .marquee span{font-size:14px;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:12px}
-  .marquee span::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--verde-brillo)}
-
-  /* cierre */
-  .cierre{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:80px 6vw;background:radial-gradient(circle at 50% 30%,rgba(26,107,84,.22),transparent 60%)}
-  .cierre h2{font-size:clamp(2.6rem,6.5vw,5rem);max-width:16ch;margin-bottom:20px}
+  /* ===== CIERRE ===== */
+  .cierre{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:80px 6vw;background:radial-gradient(circle at 50% 30%,rgba(26,107,84,.25),transparent 60%)}
+  .cierre h2{font-size:clamp(2.6rem,6.5vw,5rem);max-width:16ch;margin-bottom:20px;text-shadow:0 4px 30px rgba(0,0,0,.4)}
   .cierre p{color:var(--muted);font-size:clamp(1.1rem,2vw,1.35rem);max-width:40ch;margin-bottom:38px}
 
   footer{padding:40px 5vw;border-top:1px solid rgba(255,255,255,.07);color:var(--muted);font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;background:var(--bg)}
 
   @media(max-width:700px){
-    .scene h1{max-width:100%}
-    .scene .content{padding:0 6vw}
+    .hero h1{max-width:100%}
+    .hero .content,.panel-scene .content{padding:0 6vw}
+    .scroll-scene .texts .t{left:6vw;right:6vw}
+    .scroll-scene .texts .t h2{font-size:clamp(1.7rem,7vw,2.6rem)}
     .nav .brand{font-size:17px}
   }
   @media(prefers-reduced-motion:reduce){
     *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}
-    .reveal{opacity:1;transform:none}
+    .reveal,.word{opacity:1;transform:none}
   }
 </style>
 </head>
@@ -89,40 +111,52 @@
 </nav>
 
 <main>
-  <!-- ESCENA 1: HERO -->
-  <section class="scene">
+  <!-- HERO -->
+  <section class="hero">
     <video autoplay loop muted playsinline preload="auto" src="videos/hero.mp4"></video>
     <div class="overlay"></div>
     <div class="content">
       <span class="eyebrow reveal">Mantenimiento sin caos</span>
-      <h1 class="reveal">El mantenimiento de tu negocio, ordenado.</h1>
+      <h1 data-words>El mantenimiento de tu negocio, ordenado.</h1>
       <p class="reveal">Un QR y una foto. Sin avisos perdidos en WhatsApp, sin órdenes que nadie cierra.</p>
       <a class="btn reveal" href="#empezar">Probar 2 meses gratis →</a>
     </div>
-    <div class="fade-edge"></div>
+    <div class="scroll-cue"><span>scroll</span><div class="line"></div></div>
   </section>
 
-  <div class="marquee">
-    <div class="marquee-track">
-      <span>Órdenes con QR</span><span>Foto del problema</span><span>Sin llamadas</span><span>Panel en vivo</span><span>Multi-idioma</span><span>Sin IA</span>
-      <span>Órdenes con QR</span><span>Foto del problema</span><span>Sin llamadas</span><span>Panel en vivo</span><span>Multi-idioma</span><span>Sin IA</span>
-    </div>
-  </div>
+  <!-- PUENTE -->
+  <div class="bridge"><p>Del aviso perdido<br>a la orden cerrada.</p></div>
 
-  <!-- ESCENA 2: TÉCNICO -->
-  <section class="scene">
-    <video autoplay loop muted playsinline preload="auto" src="videos/tecnico.mp4"></video>
-    <div class="overlay"></div>
-    <div class="content">
-      <span class="eyebrow reveal">El técnico</span>
-      <h2 class="reveal">Escanea el QR. Ve la orden. La cierra.</h2>
-      <p class="reveal">Sin llamadas, sin grupos, sin perder la foto en el chat. Cada avería queda registrada con su foto y su estado.</p>
+  <!-- SCROLL-DRIVEN: EL TÉCNICO -->
+  <section class="scroll-scene" id="tecnico">
+    <div class="sticky">
+      <video muted playsinline preload="auto" src="videos/tecnico.mp4"></video>
+      <div class="overlay"></div>
+      <div class="texts">
+        <div class="t" data-at="0.05">
+          <span class="k">El técnico</span>
+          <h2>Escanea el QR de la pared.</h2>
+          <p>Sin buscar a nadie, sin llamar a nadie. El QR abre la orden exacta del punto que falla.</p>
+        </div>
+        <div class="t" data-at="0.42">
+          <span class="k">Sin intermediarios</span>
+          <h2>Ve la orden con su foto.</h2>
+          <p>La avería tal como la reportó quien la encontró. Sin perder la foto en el chat.</p>
+        </div>
+        <div class="t" data-at="0.78">
+          <span class="k">Cerrada</span>
+          <h2>La cierra. Y queda registrada.</h2>
+          <p>Cada orden queda con su foto, su estado y su fecha. Nada depende de la memoria de nadie.</p>
+        </div>
+      </div>
     </div>
-    <div class="fade-edge"></div>
   </section>
 
-  <!-- ESCENA 3: PANEL -->
-  <section class="scene">
+  <!-- PUENTE -->
+  <div class="bridge"><p>Y el jefe<br>lo ve todo.</p></div>
+
+  <!-- PANEL -->
+  <section class="panel-scene">
     <video autoplay loop muted playsinline preload="auto" src="videos/panel.mp4"></video>
     <div class="overlay"></div>
     <div class="content">
@@ -130,7 +164,6 @@
       <h2 class="reveal">Ve todo, sin preguntar a nadie.</h2>
       <p class="reveal">Qué se reportó, qué se cerró y qué falta. En tiempo real, desde cualquier dispositivo.</p>
     </div>
-    <div class="fade-edge"></div>
   </section>
 
   <!-- CIERRE -->
@@ -151,6 +184,21 @@
   "use strict";
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  /* 1. Título palabra por palabra */
+  document.querySelectorAll('[data-words]').forEach(function(el){
+    var words = el.textContent.trim().split(/\s+/);
+    el.textContent = '';
+    words.forEach(function(w,i){
+      var s = document.createElement('span');
+      s.className = 'word';
+      s.textContent = w;
+      s.style.animationDelay = (i*0.07)+'s';
+      el.appendChild(s);
+      el.appendChild(document.createTextNode(' '));
+    });
+  });
+
+  /* 2. Reveal normal */
   var io = new IntersectionObserver(function(entries){
     entries.forEach(function(en){
       if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
@@ -158,22 +206,40 @@
   }, {threshold:.2});
   document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
 
-  // Parallax suave del video con el scroll
-  if(!reduce){
-    var scenes = document.querySelectorAll('.scene video');
+  /* 3. SCROLL-DRIVEN: el video avanza/retrocede con el scroll */
+  var scene = document.querySelector('.scroll-scene');
+  if(scene && !reduce){
+    var video = scene.querySelector('video');
+    var texts = scene.querySelectorAll('.texts .t');
     var ticking = false;
+
+    function update(){
+      var rect = scene.getBoundingClientRect();
+      var total = scene.offsetHeight - window.innerHeight;
+      var p = Math.max(0, Math.min(1, -rect.top / total));
+
+      if(video.duration){
+        // el scroll controla el tiempo del video
+        video.currentTime = Math.max(0, Math.min(video.duration - 0.05, p * video.duration));
+      }
+
+      // los textos aparecen por tramos
+      texts.forEach(function(t){
+        var at = parseFloat(t.dataset.at || '0');
+        t.classList.toggle('show', Math.abs(p - at) < 0.22);
+      });
+      ticking = false;
+    }
+
     window.addEventListener('scroll', function(){
       if(ticking) return;
       ticking = true;
-      requestAnimationFrame(function(){
-        scenes.forEach(function(v){
-          var rect = v.parentElement.getBoundingClientRect();
-          var p = (rect.top / window.innerHeight);
-          v.style.transform = 'scale(1.06) translateY(' + (p * 6) + '%)';
-        });
-        ticking = false;
-      });
+      requestAnimationFrame(update);
     }, {passive:true});
+
+    video.addEventListener('loadedmetadata', update);
+    window.addEventListener('load', update);
+    update();
   }
 })();
 </script>
