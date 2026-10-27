@@ -302,11 +302,12 @@
 
   if(!reduce){
     window.addEventListener('scroll', updateAll, {passive:true});
-    window.addEventListener('resize', function(){ scenes.forEach(sizeCanvas); updateAll(); });
-    window.addEventListener('orientationchange', function(){ setTimeout(function(){ scenes.forEach(sizeCanvas); updateAll(); }, 250); });
+    window.addEventListener('resize', updateAll);
+    window.addEventListener('orientationchange', function(){ setTimeout(updateAll, 250); });
     window.addEventListener('load', updateAll);
     setTimeout(updateAll, 300);
     setTimeout(updateAll, 1200);
+    if(window.ResizeObserver){ scenes.forEach(function(s){ new ResizeObserver(updateAll).observe(s.el); }); }
     updateAll();
   }
 })();
