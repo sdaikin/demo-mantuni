@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mantuni — El mantenimiento de tu negocio, ordenado</title>
+<meta name="description" content="Reportar y cerrar órdenes de mantenimiento con un QR y una foto. Sin avisos perdidos en WhatsApp.">
+<style>
+  :root{
+    --bg:#07070b;
+    --text:#f5f5f7;
+    --muted:#9a9aa2;
+    --verde:#1a6b54;
+    --verde-brillo:#2dd4a8;
+    --arena:#d4b896;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;letter-spacing:-.01em;
+    overflow-x:hidden;
+  }
+  h1,h2{line-height:1.05;letter-spacing:-.035em;font-weight:600}
+  a{color:inherit;text-decoration:none}
+
+  /* nav */
+  .nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:18px 5vw;background:linear-gradient(to bottom,rgba(7,7,11,.8),transparent)}
+  .nav .brand{font-weight:600;font-size:20px;letter-spacing:-.02em}
+  .nav .brand span{color:var(--verde-brillo)}
+  .nav .cta{font-size:14px;font-weight:500;padding:9px 18px;border-radius:980px;background:var(--verde-brillo);color:#04120d;transition:transform .2s,box-shadow .2s}
+  .nav .cta:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(45,212,168,.3)}
+
+  /* escenas */
+  .scene{position:relative;height:100vh;overflow:hidden}
+  .scene video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.06)}
+  .scene .overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(7,7,11,.25) 0%,rgba(7,7,11,.55) 55%,rgba(7,7,11,.92) 100%)}
+  .scene .content{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;justify-content:center;padding:0 8vw;max-width:1000px}
+  .scene .content.center{align-items:center;text-align:center;margin:0 auto;padding:0 6vw}
+
+  .eyebrow{font-size:14px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--verde-brillo);margin-bottom:20px}
+  .scene h1{font-size:clamp(2.8rem,7vw,6rem);max-width:14ch}
+  .scene h2{font-size:clamp(2.2rem,5.5vw,4.2rem);max-width:16ch}
+  .scene p{font-size:clamp(1.1rem,2.2vw,1.5rem);color:var(--muted);max-width:46ch;margin-top:24px;line-height:1.5}
+  .scene .content.center p{margin-left:auto;margin-right:auto}
+
+  .btn{display:inline-flex;align-items:center;gap:10px;margin-top:36px;padding:15px 30px;border-radius:980px;background:var(--verde-brillo);color:#04120d;font-weight:600;font-size:16px;transition:transform .2s,box-shadow .2s;width:fit-content}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(45,212,168,.35)}
+  .content.center .btn{margin-left:auto;margin-right:auto}
+
+  /* reveal al scroll */
+  .reveal{opacity:0;transform:translateY(32px);transition:opacity 1s cubic-bezier(.16,1,.3,1),transform 1s cubic-bezier(.16,1,.3,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  /* separador suave */
+  .fade-edge{position:absolute;left:0;right:0;bottom:0;height:140px;background:linear-gradient(to bottom,transparent,var(--bg));z-index:3;pointer-events:none}
+
+  /* marquee */
+  .marquee{overflow:hidden;padding:22px 0;border-top:1px solid rgba(255,255,255,.07);border-bottom:1px solid rgba(255,255,255,.07);background:var(--bg)}
+  .marquee-track{display:flex;gap:46px;width:max-content;animation:scrollX 30s linear infinite}
+  @keyframes scrollX{to{transform:translateX(-50%)}}
+  .marquee span{font-size:14px;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:12px}
+  .marquee span::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--verde-brillo)}
+
+  /* cierre */
+  .cierre{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:80px 6vw;background:radial-gradient(circle at 50% 30%,rgba(26,107,84,.22),transparent 60%)}
+  .cierre h2{font-size:clamp(2.6rem,6.5vw,5rem);max-width:16ch;margin-bottom:20px}
+  .cierre p{color:var(--muted);font-size:clamp(1.1rem,2vw,1.35rem);max-width:40ch;margin-bottom:38px}
+
+  footer{padding:40px 5vw;border-top:1px solid rgba(255,255,255,.07);color:var(--muted);font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;background:var(--bg)}
+
+  @media(max-width:700px){
+    .scene h1{max-width:100%}
+    .scene .content{padding:0 6vw}
+    .nav .brand{font-size:17px}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}
+    .reveal{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="brand">Mantuni<span>.</span></div>
+  <a class="cta" href="#empezar">Probar gratis</a>
+</nav>
+
+<main>
+  <!-- ESCENA 1: HERO -->
+  <section class="scene">
+    <video autoplay loop muted playsinline preload="auto" src="videos/hero.mp4"></video>
+    <div class="overlay"></div>
+    <div class="content">
+      <span class="eyebrow reveal">Mantenimiento sin caos</span>
+      <h1 class="reveal">El mantenimiento de tu negocio, ordenado.</h1>
+      <p class="reveal">Un QR y una foto. Sin avisos perdidos en WhatsApp, sin órdenes que nadie cierra.</p>
+      <a class="btn reveal" href="#empezar">Probar 2 meses gratis →</a>
+    </div>
+    <div class="fade-edge"></div>
+  </section>
+
+  <div class="marquee">
+    <div class="marquee-track">
+      <span>Órdenes con QR</span><span>Foto del problema</span><span>Sin llamadas</span><span>Panel en vivo</span><span>Multi-idioma</span><span>Sin IA</span>
+      <span>Órdenes con QR</span><span>Foto del problema</span><span>Sin llamadas</span><span>Panel en vivo</span><span>Multi-idioma</span><span>Sin IA</span>
+    </div>
+  </div>
+
+  <!-- ESCENA 2: TÉCNICO -->
+  <section class="scene">
+    <video autoplay loop muted playsinline preload="auto" src="videos/tecnico.mp4"></video>
+    <div class="overlay"></div>
+    <div class="content">
+      <span class="eyebrow reveal">El técnico</span>
+      <h2 class="reveal">Escanea el QR. Ve la orden. La cierra.</h2>
+      <p class="reveal">Sin llamadas, sin grupos, sin perder la foto en el chat. Cada avería queda registrada con su foto y su estado.</p>
+    </div>
+    <div class="fade-edge"></div>
+  </section>
+
+  <!-- ESCENA 3: PANEL -->
+  <section class="scene">
+    <video autoplay loop muted playsinline preload="auto" src="videos/panel.mp4"></video>
+    <div class="overlay"></div>
+    <div class="content">
+      <span class="eyebrow reveal">El jefe</span>
+      <h2 class="reveal">Ve todo, sin preguntar a nadie.</h2>
+      <p class="reveal">Qué se reportó, qué se cerró y qué falta. En tiempo real, desde cualquier dispositivo.</p>
+    </div>
+    <div class="fade-edge"></div>
+  </section>
+
+  <!-- CIERRE -->
+  <section class="cierre" id="empezar">
+    <h2 class="reveal">Probá Mantuni<br>2 meses gratis.</h2>
+    <p class="reveal">Sin tarjeta. Sin compromiso. Si no te sirve, lo dejás.</p>
+    <a class="btn" href="https://mantuni.com/alta">Crear cuenta →</a>
+  </section>
+</main>
+
+<footer>
+  <span>© 2026 Mantuni</span>
+  <span>mantuni.com</span>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
+    });
+  }, {threshold:.2});
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+
+  // Parallax suave del video con el scroll
+  if(!reduce){
+    var scenes = document.querySelectorAll('.scene video');
+    var ticking = false;
+    window.addEventListener('scroll', function(){
+      if(ticking) return;
+      ticking = true;
+      requestAnimationFrame(function(){
+        scenes.forEach(function(v){
+          var rect = v.parentElement.getBoundingClientRect();
+          var p = (rect.top / window.innerHeight);
+          v.style.transform = 'scale(1.06) translateY(' + (p * 6) + '%)';
+        });
+        ticking = false;
+      });
+    }, {passive:true});
+  }
+})();
+</script>
+</body>
+</html>
