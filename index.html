@@ -41,8 +41,9 @@
   .scroll-scene.hero{height:220vh}
   .scroll-scene.tecnico{height:380vh}
   .scroll-scene.panel{height:220vh}
-  .scroll-scene .sticky{position:sticky;top:0;height:100vh;overflow:hidden}
-  .scroll-scene canvas,.scroll-scene .scene-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .scroll-scene .sticky{position:sticky;top:0;height:100vh}
+  @supports (height: 100svh){.scroll-scene .sticky{height:100svh}}
+  .scroll-scene .scene-bg{position:absolute;inset:0;background-size:cover;background-position:center;background-repeat:no-repeat}
   .scroll-scene .overlay{position:absolute;inset:0}
   .scroll-scene.hero .overlay{background:linear-gradient(to bottom,rgba(7,7,11,.35) 0%,rgba(7,7,11,.55) 50%,rgba(7,7,11,.92) 100%)}
   .scroll-scene.tecnico .overlay{background:linear-gradient(to bottom,rgba(7,7,11,.55) 0%,rgba(7,7,11,.25) 40%,rgba(7,7,11,.75) 100%)}
@@ -119,7 +120,7 @@
   <!-- HERO SCROLL-DRIVEN -->
   <section class="scroll-scene hero" data-frames="frames_hero">
     <div class="sticky">
-      <img class="scene-img" alt="" src="frames_hero/f000.jpg">
+      <div class="scene-bg" style="background-image:url('frames_hero/f000.jpg')"></div>
       <div class="overlay"></div>
       <div class="scene-content">
         <span class="eyebrow reveal">Mantenimiento sin caos</span>
@@ -137,7 +138,7 @@
   <!-- TÉCNICO SCROLL-DRIVEN -->
   <section class="scroll-scene tecnico" data-frames="frames">
     <div class="sticky">
-      <img class="scene-img" alt="" src="frames/f000.jpg">
+      <div class="scene-bg" style="background-image:url('frames/f000.jpg')"></div>
       <div class="overlay"></div>
       <div class="texts">
         <div class="t" data-at="0.05">
@@ -175,7 +176,7 @@
   <!-- PANEL SCROLL-DRIVEN -->
   <section class="scroll-scene panel" data-frames="frames_panel">
     <div class="sticky">
-      <img class="scene-img" alt="" src="frames_panel/f000.jpg">
+      <div class="scene-bg" style="background-image:url('frames_panel/f000.jpg')"></div>
       <div class="overlay"></div>
       <div class="scene-content">
         <span class="eyebrow reveal">El jefe</span>
@@ -238,8 +239,8 @@
   var TOTAL = 80;
   var scenes = [];
   document.querySelectorAll('.scroll-scene').forEach(function(scene){
-    var imgEl = scene.querySelector('.scene-img');
-    if(!imgEl) return;
+    var bgEl = scene.querySelector('.scene-bg');
+    if(!bgEl) return;
     var folder = scene.dataset.frames;
     var texts = scene.querySelectorAll('.texts .t');
     var imgs = [];
@@ -248,7 +249,7 @@
       img.src = folder + '/f' + String(i).padStart(3,'0') + '.jpg';
       imgs.push(img);
     }
-    scenes.push({ el: scene, imgEl: imgEl, folder: folder, imgs: imgs, texts: texts, current: -1 });
+    scenes.push({ el: scene, bgEl: bgEl, folder: folder, imgs: imgs, texts: texts, current: -1 });
   });
 
   function updateScene(s){
@@ -258,7 +259,7 @@
     var frame = Math.round(p * (TOTAL - 1));
     if(frame !== s.current){
       s.current = frame;
-      s.imgEl.src = s.folder + '/f' + String(frame).padStart(3,'0') + '.jpg';
+      s.bgEl.style.backgroundImage = "url('" + s.folder + "/f" + String(frame).padStart(3,'0') + ".jpg')";
     }
     s.texts.forEach(function(t){
       var at = parseFloat(t.dataset.at || '0');
