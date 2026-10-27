@@ -290,7 +290,12 @@
 
   function updateAll(){
     scenes.forEach(function(s){
-      if(!s.canvas.width || !s.canvas.height) sizeCanvas(s);
+      var r = s.canvas.getBoundingClientRect();
+      var dpr = window.devicePixelRatio || 1;
+      var w = Math.max(1, Math.round(r.width * dpr)), h = Math.max(1, Math.round(r.height * dpr));
+      if(s.canvas.width !== w || s.canvas.height !== h){
+        s.canvas.width = w; s.canvas.height = h; s.current = -1;
+      }
       updateScene(s);
     });
   }
