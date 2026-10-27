@@ -113,7 +113,7 @@
 <main>
   <!-- HERO -->
   <section class="hero">
-    <video autoplay loop muted playsinline preload="auto" src="videos/hero.mp4"></video>
+    <video autoplay loop muted playsinline preload="auto" src="videos/hero_web.mp4"></video>
     <div class="overlay"></div>
     <div class="content">
       <span class="eyebrow reveal">Mantenimiento sin caos</span>
@@ -130,7 +130,7 @@
   <!-- SCROLL-DRIVEN: EL TÉCNICO -->
   <section class="scroll-scene" id="tecnico">
     <div class="sticky">
-      <video muted playsinline preload="auto" src="videos/tecnico.mp4"></video>
+      <video muted playsinline preload="auto" src="videos/tecnico_web.mp4"></video>
       <div class="overlay"></div>
       <div class="texts">
         <div class="t" data-at="0.05">
@@ -157,7 +157,7 @@
 
   <!-- PANEL -->
   <section class="panel-scene">
-    <video autoplay loop muted playsinline preload="auto" src="videos/panel.mp4"></video>
+    <video autoplay loop muted playsinline preload="auto" src="videos/panel_web.mp4"></video>
     <div class="overlay"></div>
     <div class="content">
       <span class="eyebrow reveal">El jefe</span>
@@ -211,35 +211,39 @@
   if(scene && !reduce){
     var video = scene.querySelector('video');
     var texts = scene.querySelectorAll('.texts .t');
-    var ticking = false;
+    var targetT = 0;
+    var rafId = null;
+    var ready = false;
 
-    function update(){
+    video.addEventListener('canplaythrough', function(){ ready = true; });
+    if(video.readyState >= 4) ready = true;
+
+    function computeTarget(){
       var rect = scene.getBoundingClientRect();
       var total = scene.offsetHeight - window.innerHeight;
       var p = Math.max(0, Math.min(1, -rect.top / total));
-
-      if(video.duration){
-        // el scroll controla el tiempo del video
-        video.currentTime = Math.max(0, Math.min(video.duration - 0.05, p * video.duration));
-      }
-
-      // los textos aparecen por tramos
+      if(video.duration) targetT = Math.max(0, Math.min(video.duration - 0.04, p * video.duration));
       texts.forEach(function(t){
         var at = parseFloat(t.dataset.at || '0');
         t.classList.toggle('show', Math.abs(p - at) < 0.22);
       });
-      ticking = false;
     }
 
-    window.addEventListener('scroll', function(){
-      if(ticking) return;
-      ticking = true;
-      requestAnimationFrame(update);
-    }, {passive:true});
+    function loop(){
+      if(ready && video.duration){
+        var diff = targetT - video.currentTime;
+        if(Math.abs(diff) > 0.02){
+          video.currentTime = video.currentTime + diff * 0.3;
+        }
+      }
+      rafId = requestAnimationFrame(loop);
+    }
 
-    video.addEventListener('loadedmetadata', update);
-    window.addEventListener('load', update);
-    update();
+    window.addEventListener('scroll', computeTarget, {passive:true});
+    video.addEventListener('loadedmetadata', function(){ computeTarget(); if(!rafId) loop(); });
+    window.addEventListener('load', computeTarget);
+    computeTarget();
+    if(video.readyState >= 1) loop();
   }
 })();
 </script>
