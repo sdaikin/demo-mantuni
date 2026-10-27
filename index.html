@@ -243,13 +243,18 @@
     if(!canvas) return;
     var folder = scene.dataset.frames;
     var texts = scene.querySelectorAll('.texts .t');
-    var imgs = [];
-    for(var i=0; i<TOTAL; i++){
-      var img = new Image();
-      img.src = folder + '/f' + String(i).padStart(3,'0') + '.jpg';
-      imgs.push(img);
-    }
-    scenes.push({ el: scene, canvas: canvas, ctx: canvas.getContext('2d'), folder: folder, imgs: imgs, texts: texts, current: -1 });
+    var s = { el: scene, canvas: canvas, ctx: canvas.getContext('2d'), folder: folder, imgs: [], texts: texts, current: -1 };
+    (function(sc){
+      for(var i=0; i<TOTAL; i++){
+        (function(idx){
+          var img = new Image();
+          img.onload = function(){ if(sc.current === idx) drawCover(sc, img); };
+          img.src = folder + '/f' + String(idx).padStart(3,'0') + '.jpg';
+          sc.imgs.push(img);
+        })(i);
+      }
+    })(s);
+    scenes.push(s);
   });
 
   function sizeCanvas(s){
