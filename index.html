@@ -68,7 +68,7 @@
   /* ===== ESCENA SCROLL-DRIVEN (el técnico) ===== */
   .scroll-scene{position:relative;height:380vh}
   .scroll-scene .sticky{position:sticky;top:0;height:100vh;overflow:hidden}
-  .scroll-scene video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .scroll-scene video,.scroll-scene canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .scroll-scene .overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(7,7,11,.55) 0%,rgba(7,7,11,.25) 40%,rgba(7,7,11,.75) 100%)}
   .scroll-scene .texts{position:absolute;inset:0;z-index:2}
   .scroll-scene .texts .t{position:absolute;left:8vw;right:8vw;max-width:720px;opacity:0;transform:translateY(28px);transition:opacity .5s cubic-bezier(.16,1,.3,1),transform .5s cubic-bezier(.16,1,.3,1);pointer-events:none}
@@ -138,7 +138,7 @@
   <!-- SCROLL-DRIVEN: EL TÉCNICO -->
   <section class="scroll-scene" id="tecnico">
     <div class="sticky">
-      <video muted playsinline preload="auto" src="videos/tecnico_web.mp4"></video>
+      <canvas id="tecnico-canvas" width="960" height="540"></canvas>
       <div class="overlay"></div>
       <div class="texts">
         <div class="t" data-at="0.05">
@@ -234,44 +234,54 @@
   }, {threshold:.2});
   document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
 
-  /* 3. SCROLL-DRIVEN: el video avanza/retrocede con el scroll */
+  /* 3. SCROLL-DRIVEN por FRAMES en canvas (método Rodrigo) */
   var scene = document.querySelector('.scroll-scene');
   if(scene && !reduce){
-    var video = scene.querySelector('video');
+    var canvas = document.getElementById('tecnico-canvas');
+    var ctx = canvas.getContext('2d');
     var texts = scene.querySelectorAll('.texts .t');
-    var targetT = 0;
-    var rafId = null;
-    var ready = false;
+    var TOTAL = 120;
+    var imgs = [];
+    var currentFrame = -1;
 
-    video.addEventListener('canplaythrough', function(){ ready = true; });
-    if(video.readyState >= 4) ready = true;
+    for(var i=0; i<TOTAL; i++){
+      var img = new Image();
+      img.src = 'frames/f' + String(i).padStart(3,'0') + '.jpg';
+      imgs.push(img);
+    }
+    imgs[0].onload = function(){ ctx.drawImage(imgs[0], 0, 0, canvas.width, canvas.height); };
 
-    function computeTarget(){
+    function draw(idx){
+      var img = imgs[idx];
+      if(img && img.complete && img.naturalWidth > 0){
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    function update(){
       var rect = scene.getBoundingClientRect();
       var total = scene.offsetHeight - window.innerHeight;
       var p = Math.max(0, Math.min(1, -rect.top / total));
-      if(video.duration) targetT = Math.max(0, Math.min(video.duration - 0.04, p * video.duration));
+      var frame = Math.round(p * (TOTAL - 1));
+      if(frame !== currentFrame){
+        currentFrame = frame;
+        draw(frame);
+      }
       texts.forEach(function(t){
         var at = parseFloat(t.dataset.at || '0');
         t.classList.toggle('show', Math.abs(p - at) < 0.22);
       });
     }
 
-    function loop(){
-      if(ready && video.duration){
-        var diff = targetT - video.currentTime;
-        if(Math.abs(diff) > 0.02){
-          video.currentTime = video.currentTime + diff * 0.3;
-        }
-      }
-      rafId = requestAnimationFrame(loop);
-    }
+    var ticking = false;
+    window.addEventListener('scroll', function(){
+      if(ticking) return;
+      ticking = true;
+      requestAnimationFrame(function(){ update(); ticking = false; });
+    }, {passive:true});
 
-    window.addEventListener('scroll', computeTarget, {passive:true});
-    video.addEventListener('loadedmetadata', function(){ computeTarget(); if(!rafId) loop(); });
-    window.addEventListener('load', computeTarget);
-    computeTarget();
-    if(video.readyState >= 1) loop();
+    window.addEventListener('resize', update);
+    update();
   }
 })();
 </script>
