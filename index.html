@@ -43,7 +43,7 @@
   .scroll-scene.panel{height:220vh}
   .scroll-scene .sticky{position:sticky;top:0;height:100vh}
   @supports (height: 100svh){.scroll-scene .sticky{height:100svh}}
-  .scroll-scene .scene-bg{position:absolute;inset:0;background-size:cover;background-position:center;background-repeat:no-repeat}
+  .scroll-scene .scene-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
   .scroll-scene .overlay{position:absolute;inset:0}
   .scroll-scene.hero .overlay{background:linear-gradient(to bottom,rgba(7,7,11,.35) 0%,rgba(7,7,11,.55) 50%,rgba(7,7,11,.92) 100%)}
   .scroll-scene.tecnico .overlay{background:linear-gradient(to bottom,rgba(7,7,11,.55) 0%,rgba(7,7,11,.25) 40%,rgba(7,7,11,.75) 100%)}
@@ -120,7 +120,7 @@
   <!-- HERO SCROLL-DRIVEN -->
   <section class="scroll-scene hero" data-frames="frames_hero">
     <div class="sticky">
-      <div class="scene-bg" style="background-image:url('frames_hero/f000.jpg')"></div>
+      <canvas class="scene-canvas"></canvas>
       <div class="overlay"></div>
       <div class="scene-content">
         <span class="eyebrow reveal">Mantenimiento sin caos</span>
@@ -138,7 +138,7 @@
   <!-- TÉCNICO SCROLL-DRIVEN -->
   <section class="scroll-scene tecnico" data-frames="frames">
     <div class="sticky">
-      <div class="scene-bg" style="background-image:url('frames/f000.jpg')"></div>
+      <canvas class="scene-canvas"></canvas>
       <div class="overlay"></div>
       <div class="texts">
         <div class="t" data-at="0.05">
@@ -176,7 +176,7 @@
   <!-- PANEL SCROLL-DRIVEN -->
   <section class="scroll-scene panel" data-frames="frames_panel">
     <div class="sticky">
-      <div class="scene-bg" style="background-image:url('frames_panel/f000.jpg')"></div>
+      <canvas class="scene-canvas"></canvas>
       <div class="overlay"></div>
       <div class="scene-content">
         <span class="eyebrow reveal">El jefe</span>
@@ -235,12 +235,12 @@
   }, {threshold:.2});
   document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
 
-  /* 3. SCROLL-DRIVEN por FRAMES en <img> (compatible movil) */
+  /* 3. SCROLL-DRIVEN por FRAMES en canvas (escalado cover, iOS compatible) */
   var TOTAL = 80;
   var scenes = [];
   document.querySelectorAll('.scroll-scene').forEach(function(scene){
-    var bgEl = scene.querySelector('.scene-bg');
-    if(!bgEl) return;
+    var canvas = scene.querySelector('.scene-canvas');
+    if(!canvas) return;
     var folder = scene.dataset.frames;
     var texts = scene.querySelectorAll('.texts .t');
     var imgs = [];
@@ -249,8 +249,23 @@
       img.src = folder + '/f' + String(i).padStart(3,'0') + '.jpg';
       imgs.push(img);
     }
-    scenes.push({ el: scene, bgEl: bgEl, folder: folder, imgs: imgs, texts: texts, current: -1 });
+    scenes.push({ el: scene, canvas: canvas, ctx: canvas.getContext('2d'), folder: folder, imgs: imgs, texts: texts, current: -1 });
   });
+
+  function sizeCanvas(s){
+    var rect = s.canvas.getBoundingClientRect();
+    var dpr = window.devicePixelRatio || 1;
+    s.canvas.width = Math.max(1, Math.round(rect.width * dpr));
+    s.canvas.height = Math.max(1, Math.round(rect.height * dpr));
+  }
+
+  function drawCover(s, img){
+    var cw = s.canvas.width, ch = s.canvas.height;
+    var iw = img.naturalWidth, ih = img.naturalHeight;
+    var scale = Math.max(cw/iw, ch/ih);
+    var dw = iw*scale, dh = ih*scale;
+    s.ctx.drawImage(img, (cw-dw)/2, (ch-dh)/2, dw, dh);
+  }
 
   function updateScene(s){
     var rect = s.el.getBoundingClientRect();
@@ -259,7 +274,8 @@
     var frame = Math.round(p * (TOTAL - 1));
     if(frame !== s.current){
       s.current = frame;
-      s.bgEl.style.backgroundImage = "url('" + s.folder + "/f" + String(frame).padStart(3,'0') + ".jpg')";
+      var img = s.imgs[frame];
+      if(img && img.complete && img.naturalWidth > 0) drawCover(s, img);
     }
     s.texts.forEach(function(t){
       var at = parseFloat(t.dataset.at || '0');
@@ -267,12 +283,21 @@
     });
   }
 
+  function updateAll(){
+    scenes.forEach(function(s){
+      if(!s.canvas.width || !s.canvas.height) sizeCanvas(s);
+      updateScene(s);
+    });
+  }
+
   if(!reduce){
-    window.addEventListener('scroll', function(){ scenes.forEach(updateScene); }, {passive:true});
-    window.addEventListener('resize', function(){ scenes.forEach(updateScene); });
-    window.addEventListener('load', function(){ scenes.forEach(updateScene); });
-    setTimeout(function(){ scenes.forEach(updateScene); }, 300);
-    scenes.forEach(updateScene);
+    window.addEventListener('scroll', updateAll, {passive:true});
+    window.addEventListener('resize', function(){ scenes.forEach(sizeCanvas); updateAll(); });
+    window.addEventListener('orientationchange', function(){ setTimeout(function(){ scenes.forEach(sizeCanvas); updateAll(); }, 250); });
+    window.addEventListener('load', updateAll);
+    setTimeout(updateAll, 300);
+    setTimeout(updateAll, 1200);
+    updateAll();
   }
 })();
 </script>
