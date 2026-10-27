@@ -54,8 +54,16 @@
   .scroll-cue .line{width:1px;height:36px;background:linear-gradient(to bottom,var(--verde-brillo),transparent)}
 
   /* ===== SECCIONES INTERMEDIAS (transición suave) ===== */
-  .bridge{height:60vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 50%,rgba(26,107,84,.18),transparent 65%)}
-  .bridge p{max-width:20ch;text-align:center;font-size:clamp(1.6rem,3.4vw,2.6rem);font-weight:600;letter-spacing:-.03em;color:var(--text);opacity:.9}
+  .bridge{height:60vh;display:flex;align-items:center;justify-content:center;background-size:cover;background-position:center;position:relative;overflow:hidden}
+  .bridge::before{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(7,7,11,.8),rgba(7,7,11,.55),rgba(7,7,11,.85));z-index:0}
+  .bridge p{position:relative;z-index:1;max-width:20ch;text-align:center;font-size:clamp(1.6rem,3.4vw,2.6rem);font-weight:600;letter-spacing:-.03em;color:var(--text);opacity:.95;text-shadow:0 4px 30px rgba(0,0,0,.6)}
+
+  /* sección con imagen fija de fondo */
+  .img-scene{position:relative;height:100vh;background-size:cover;background-position:center;overflow:hidden}
+  .img-scene .overlay{position:absolute;inset:0;background:linear-gradient(to right,rgba(7,7,11,.9) 0%,rgba(7,7,11,.5) 55%,rgba(7,7,11,.15) 100%)}
+  .img-scene .content{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;justify-content:center;padding:0 8vw;max-width:840px}
+  .img-scene h2{font-size:clamp(2.2rem,5.5vw,4.2rem);max-width:15ch;text-shadow:0 4px 30px rgba(0,0,0,.6)}
+  .img-scene p{font-size:clamp(1.05rem,2vw,1.35rem);color:#d8d8de;max-width:42ch;margin-top:22px;text-shadow:0 2px 14px rgba(0,0,0,.7)}
 
   /* ===== ESCENA SCROLL-DRIVEN (el técnico) ===== */
   .scroll-scene{position:relative;height:380vh}
@@ -125,7 +133,7 @@
   </section>
 
   <!-- PUENTE -->
-  <div class="bridge"><p>Del aviso perdido<br>a la orden cerrada.</p></div>
+  <div class="bridge" style="background-image:url('img/pasillo.webp')"><p>Del aviso perdido<br>a la orden cerrada.</p></div>
 
   <!-- SCROLL-DRIVEN: EL TÉCNICO -->
   <section class="scroll-scene" id="tecnico">
@@ -153,7 +161,17 @@
   </section>
 
   <!-- PUENTE -->
-  <div class="bridge"><p>Y el jefe<br>lo ve todo.</p></div>
+  <div class="bridge" style="background-image:url('img/lobby.webp')"><p>Y el jefe<br>lo ve todo.</p></div>
+
+  <!-- QR -->
+  <section class="img-scene" style="background-image:url('img/qr.webp')">
+    <div class="overlay"></div>
+    <div class="content">
+      <span class="eyebrow reveal">El reporte</span>
+      <h2 class="reveal">Un QR en la pared. Una foto. Listo.</h2>
+      <p class="reveal">Cualquiera del equipo reporta la avería en segundos, sin cuenta y en su idioma.</p>
+    </div>
+  </section>
 
   <!-- PANEL -->
   <section class="panel-scene">
@@ -163,6 +181,16 @@
       <span class="eyebrow reveal">El jefe</span>
       <h2 class="reveal">Ve todo, sin preguntar a nadie.</h2>
       <p class="reveal">Qué se reportó, qué se cerró y qué falta. En tiempo real, desde cualquier dispositivo.</p>
+    </div>
+  </section>
+
+  <!-- TABLET -->
+  <section class="img-scene" style="background-image:url('img/tablet.webp')">
+    <div class="overlay"></div>
+    <div class="content">
+      <span class="eyebrow reveal">En la mano</span>
+      <h2 class="reveal">El panel, donde estés.</h2>
+      <p class="reveal">Abrí desde el móvil o la tablet y mirá exactamente qué falta cerrar.</p>
     </div>
   </section>
 
