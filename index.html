@@ -211,7 +211,6 @@
   <span>© 2026 Mantuni</span>
   <span>mantuni.com</span>
 </footer>
-<div id="dbg" style="position:fixed;bottom:0;left:0;z-index:9999;background:#000;color:#0f0;padding:3px 6px;font:11px monospace;opacity:.85">--</div>
 
 <script>
 (function(){
@@ -306,7 +305,7 @@
     });
   }
 
-  if(true){
+  {
     // redimensionar canvas al tamaño real
     function sizeAll(){
       scenes.forEach(function(s){
@@ -334,8 +333,6 @@
           onUpdate: function(self){
             var p = self.progress;
             var f = Math.round(p * (TOTAL - 1));
-            var dbg = document.getElementById('dbg');
-            if(dbg) dbg.textContent = Math.round(p*100) + '% f' + f + ' y' + Math.round(window.scrollY);
             if(f !== s.current){
               s.current = f;
               var img = s.imgs[f];
